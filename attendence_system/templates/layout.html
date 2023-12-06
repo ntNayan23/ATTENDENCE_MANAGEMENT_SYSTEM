@@ -6,49 +6,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}}</title>
     <link rel="stylesheet" href="../static/content/site.css">
-    <link rel="stylesheet" href="../static/content/bootstrap.min.css">
-    
-
+    <link rel="stylesheet" href="../static/content/bootstrap.min.css"> 
+   
 </head>
 
-<body >
+<body>
     <div class="container-fluid ">
-    <nav class="navbar navbar-expand-lg navbar-light " style="background-color: #448086;">
-        <a class="navbar-brand " href="{{ url_for('home') }}" style="font-weight:800;">A M S</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+      
+        <nav class="navbar navbar-expand-lg navbar-light " style="background-color: #448086;">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('home') }}"  style="font-weight:800;">A M S</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}" style="font-size: 16px;">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"  style="font-size: 16px;">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"  style="font-size: 16px;">Contact</a>
+                        </li>
+                     
+                    </ul>
+                  
+                </div>
+            </div>
+        </nav>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">About <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Contact <span class="sr-only">(current)</span></a>
-                </li>
-             
-            </ul>
-         
+
+
+
+        <div class="container-fluid  body-content ">
+            {% block content %}{% endblock %}
+            <br>
+            <br>
+            <br>
+            <br>
+
+            <hr />
+
         </div>
-    </nav>
-
-    <div class="container-fluid  body-content">
-        {% block content %}{% endblock %}
-        <hr />
-
-    </div>
-        <footer class="text-center">
+        <footer class="text-center ">
             <p>&copy; {{ year }} - Attendance Management System</p>
         </footer>
     </div>
-    <script src="../static/scripts/jquery-3.7.1.js"></script>
+
+ 
+   
     <script src="../static/scripts/bootstrap.bundle.min.js"></script>
-    <script src="../static/scripts/bootstrap.min.js"></script>
+ 
 
 
     {% block scripts %}{% endblock %}
