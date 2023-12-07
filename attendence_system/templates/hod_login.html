@@ -27,8 +27,7 @@
     
     .container{
         width: 500px;
-        margin-top: 100px;
-        margin-bottom: 20px;
+        margin-top: 50px;
         margin-left: auto;
         margin-right: auto;
         padding: 15px;
@@ -110,7 +109,7 @@
         box-shadow: 2px 2px 5px #353636;
     }
     
-    button[type="submit"]{
+    .btn[type="submit"]{
         width: 100%;
         padding: var(--primary-padding);
         border-radius: var(--pilled-shape-radius);
@@ -138,26 +137,42 @@
         <div class="item-container">
             <h2 class="log-in">Log in</h2>
         </div>
-        <form>
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
             <div class="form-input">
-                <label for="email" class="label">Email</label>
-                <input type="text" >
+                {{ form.email.label(class="form-label")  }}
+
+                {%if form.email.errors%}
+                {{form.email(class="form-input is-invalid")}}
+                    {%for error in form.email.errors%}
+                        <span>{{error}}</span>
+                    {%endfor%}
+                    {%else%}
+                    {{form.email(class="form-input ", placeholder='Enter Email ')}}
+                {%endif%}
             </div>
             <div class="form-input">
-                <label for="password" class="label">Password</label>
-                <input type="password" >
+                {{ form.Password.label( class="label")  }}
+                {%if form.Password.errors%}
+                {{form.Password(class="form-input is-invalid")}}
+                    {%for error in form.Password.errors%}
+                        <span>{{error}}</span>
+                    {%endfor%}
+                    {%else%}
+                    {{form.Password(class="form-input ", placeholder='Enter Password ')}}
+                {%endif%}
             </div>
             <div class="display-space-between">
-                <div>
-                    <input type="checkbox" checked>
-                    <label for="password" class="chekbox-label">Remember Me</label>
+                <div class="form-check">
+                    {{ form.remember (class="form-check-input")}}
+                    {{ form.remember.label (class="form-check-label")}}
                 </div>
                 <div>
                     <a href="#">Forget password</a>
                 </div>
             </div>
             <div>
-                <button type="submit">Log in</button>
+                {{form.submit(class="btn ")}}
             </div>
         </form>
         <div class="display-space-between">
