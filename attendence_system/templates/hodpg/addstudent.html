@@ -1,0 +1,206 @@
+{% extends "hodpg/hodlayout.html" %} {% block content %}
+
+
+<main class="mt-3 pt-3">
+  <h2 class="text-center">Student details</h2>
+  <form method="Post" action="">
+    {{ form.hidden_tag() }}
+    <div class="row mb-1 align-items-center ">
+      {{ form.Full_name.label(class="col-sm-2 col-form-label-lg")  }}
+      <div class="col-sm-3 ">
+        {%if form.Full_name.errors%}
+              {{form.Full_name(class="form-control is-invalid",placeholder='Enter full name ' )}}
+                  {%for error in form.Full_name.errors%}
+                      <span>{{error}}</span>
+                  {%endfor%}
+                  {%else%}
+                  {{form.Full_name(class="form-control", placeholder='Enter full name ')}}
+              {%endif%}
+      </div>
+    </div>
+    <div class="row mb-1 align-items-center ">
+      {{ form.DOB_field.label(class="col-sm-2 col-form-label-lg")  }}
+      <div class="col-sm-2 ">
+        {%if form.DOB_field.errors%}
+              {{form.DOB_field(class="form-control is-invalid")}}
+                  {%for error in form.DOB_field.errors%}
+                      <span>{{error}}</span>
+                  {%endfor%}
+                  {%else%}
+                  {{form.DOB_field(class="form-control")}}
+              {%endif%}
+      </div>
+    </div>
+    <div class="row mb-1 align-items-center ">
+      {{ form.admission_date.label(class="col-sm-2 col-form-label-lg")  }}
+      <div class="col-sm-2 ">
+        {%if form.admission_date.errors%}
+              {{form.admission_date(class="form-control is-invalid")}}
+                  {%for error in form.admission_date.errors%}
+                      <span>{{error}}</span>
+                  {%endfor%}
+                  {%else%}
+                  {{form.admission_date(class="form-control")}}
+              {%endif%}
+      </div>
+    </div>
+    <div class="row mb-1 align-items-center ">
+      {{ form.student_id.label(class="col-sm-2 col-form-label-lg")  }}
+      <div class="col-sm-3 ">
+        {%if form.student_id.errors%}
+              {{form.student_id(class="form-control is-invalid", placeholder='Enter student ID ')}}
+                  {%for error in form.student_id.errors%}
+                      <span>{{error}}</span>
+                  {%endfor%}
+                  {%else%}
+                  {{form.student_id(class="form-control", placeholder='Enter student ID ')}}
+              {%endif%}
+      </div>
+    </div>
+    <div class="row mb-1 align-items-center ">
+      {{ form.year.label(class="col-sm-2 col-form-label-lg")  }}
+      <div class="col-sm-3 ">
+        {%if form.year.errors%}
+              {{form.year(class="form-select is-invalid")}}
+                  {%for error in form.year.errors%}
+                      <span>{{error}}</span>
+                  {%endfor%}
+                  {%else%}
+                  {{form.year(class="form-select")}}
+              {%endif%}
+      </div>
+    </div>
+  
+  
+   <div class="row mb-1 align-items-center">
+    <label class="col-form-label-lg col-sm-2">Choose Image Source:</label>
+    <div class="col-sm-3 ">
+      {% for choice, label in form.image_source.choices %}
+      {% if not loop.first %} {# Exclude CSRF field #}
+  <div class="form-check form-check-inline d-flex ">
+    {{ form.image_source(class="form-check-control list-unstyled", value=choice, onclick="toggleImageSource('" + choice + "')") }}
+   
+  </div>
+  {% endif %}
+  {% endfor %}
+  </div>
+  </div>
+  
+  <span id="upload-fields">
+  <div class="row mb-1 align-items-center " >
+    {{ form.image_file.label(class="col-form-label-lg col-sm-2 ") }}
+    <div class="col-sm-3"  >
+      {%if form.image_file.errors%}
+      {{form.image_file(class="form-control is-invalid")}}
+          {%for error in form.image_file.errors%}
+              <span>{{error}}</span>
+          {%endfor%}
+          {%else%}
+          {{form.image_file(class="form-control")}}
+      {%endif%}
+  
+    </div>
+  </div>
+  </span>
+  <div id="webcam-fields" style="display: none;">
+    <!-- Placeholder for webcam capture, if needed  -->
+    <p>Webcam Capture Fields</p> 
+  </div>
+
+  <div class="row mb-1 mt-4 d-flex justify-content-center ">
+    <div class="col-sm-5 ">
+      <span class="w-100 custom-btn btn-15 text-center">{{form.Submit(class="btn bg-transparent w-100 " ) }}</span>
+      
+    </div>
+    
+  </div>
+  </form>
+
+ 
+
+
+
+
+
+
+</main>
+
+
+<style>
+  .custom-btn {
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px 25px;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, 0.5),
+      7px 7px 20px 0px rgba(0, 0, 0, 0.1), 4px 4px 5px 0px rgba(0, 0, 0, 0.1);
+    outline: none;
+  }
+
+  /* 15 */
+  .btn-15 {
+    background: #b621fe;
+    border: none;
+    z-index: 1;
+  }
+  .btn-15:after {
+    position: absolute;
+    content: "";
+    width: 0;
+    height: 100%;
+    top: 0;
+    right: 0;
+    z-index: -1;
+    background-color: #663dff;
+    border-radius: 5px;
+    box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, 0.5),
+      7px 7px 20px 0px rgba(0, 0, 0, 0.1), 4px 4px 5px 0px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  .btn-15:hover {
+    color: #fff;
+  }
+  .btn-15:hover:after {
+    left: 0;
+    width: 100%;
+  }
+  .btn-15:active {
+    top: 2px;
+  }
+</style>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+      function toggleImageSource(choice) {
+        if (choice === 'upload') {
+            document.getElementById('upload-fields').style.display = 'block';
+            document.getElementById('webcam-fields').style.display = 'none';
+        } else if (choice === 'webcam') {
+            document.getElementById('upload-fields').style.display = 'none';
+            document.getElementById('webcam-fields').style.display = 'block';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var choices = document.getElementsByName("image_source");
+        
+        choices.forEach(function(choice) {
+            choice.addEventListener('change', function() {
+                toggleImageSource(choice.value);
+            });
+        });
+    });
+    </script>
+{% endblock %}
+
+
+
+ 

@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField, BooleanField
-from wtforms.validators import DataRequired,Length,EqualTo,Email,Regexp
-from wtforms import ValidationError,validators
+from wtforms import DateField, FileField, RadioField, SelectField, StringField,PasswordField,SubmitField, BooleanField
+from wtforms.validators import DataRequired,Length,Email,Regexp,InputRequired
 
 
 class LoginForm(FlaskForm):
@@ -10,3 +9,15 @@ class LoginForm(FlaskForm):
     Password = PasswordField('Password',validators=[DataRequired(),Length(min=8,max=16),Regexp(regex="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}",flags=0)])
     remember = BooleanField('Remember Me')
     submit = SubmitField(label='Login')
+
+class AddStud(FlaskForm):
+    Full_name = StringField('Name', validators=[DataRequired()])
+    DOB_field = DateField('Date of Birth (DOB)', format='%Y-%m-%d', validators=[DataRequired()])
+    admission_date = DateField('Admission Date', validators=[DataRequired()])
+    student_id = StringField('Student ID', validators=[DataRequired()])
+    year = SelectField('Year', choices=[('0', 'Select Year'),('1', 'First Year'), ('2', 'Second Year'), ('3', 'Third Year'), ('4', 'Fourth Year')],validators=[DataRequired()])
+    image_source = RadioField('Image Source', choices=[('upload', 'Upload Image'), ('webcam', 'Capture from Webcam')], default='upload', validators=[InputRequired()])
+    image_file = FileField('Image File', validators=[InputRequired()])
+    Submit = SubmitField(label='Add')
+
+

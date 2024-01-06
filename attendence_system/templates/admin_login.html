@@ -133,7 +133,7 @@
             <h2 class="log-in">Log in</h2>
         </div>
        
-        <form method="POST" action="" >
+        <form method="POST" action="admin_login" >
          {{ form.hidden_tag() }}
             <div class="form-input">
                 {{ form.email.label(class="form-label ")  }}
@@ -146,9 +146,6 @@
                     {%else%}
                     {{form.email(class="form-input ps-3 ", placeholder='Enter Email ')}}
                 {%endif%}
-
-                <!-- <label for="email" class="label">Email</label>
-                <input type="text"  > -->
             </div>
             <div class="form-input">
                 {{ form.Password.label( class="form-label ")  }}
@@ -160,23 +157,19 @@
                     {%else%}
                     {{form.Password(class="form-input ps-3 ", placeholder='Enter Password ')}}
                 {%endif%}
-
-                 <!-- <label for="password" class="label">Password</label>
-                <input type="password" id="password" name="password" required >  -->
             </div>
             <div class="display-space-between">
                 <div class="form-check">
                     {{ form.remember (class="form-check-input ")}}
                     {{ form.remember.label (class="form-check-label  ")}}
-                    <!-- <input type="checkbox" checked>
-                    <label for="password" class="chekbox-label">Remember Me</label> -->
+                   
                 </div>
                 <div>
                     <a href="#">Forget password?</a>
                 </div>
             </div>
             <div>
-                <!-- <button type="submit" value="Submit" >Log in</button> -->
+            
                 {{form.submit(class="btn ")}}
             </div>
         </form>  
@@ -185,6 +178,5 @@
             <a href="#">Terms & condition</a>
         </div>
     </div>
-
 
 {% endblock %}
