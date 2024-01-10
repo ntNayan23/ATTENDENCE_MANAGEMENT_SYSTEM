@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import DateField, FileField, RadioField, SelectField, StringField,PasswordField,SubmitField, BooleanField
 from wtforms.validators import DataRequired,Length,Email,Regexp,InputRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from wtforms import MultipleFileField
 
 
 class LoginForm(FlaskForm):
@@ -17,7 +19,12 @@ class AddStud(FlaskForm):
     student_id = StringField('Student ID', validators=[DataRequired()])
     year = SelectField('Year', choices=[('0', 'Select Year'),('1', 'First Year'), ('2', 'Second Year'), ('3', 'Third Year'), ('4', 'Fourth Year')],validators=[DataRequired()])
     image_source = RadioField('Image Source', choices=[('upload', 'Upload Image'), ('webcam', 'Capture from Webcam')], default='upload', validators=[InputRequired()])
-    image_file = FileField('Image File', validators=[InputRequired()])
+    image_fold = MultipleFileField('Image File', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
     Submit = SubmitField(label='Add')
+
+
+# class ImageForm(FlaskForm):
+#     image_file = FileField('Image File', validators=[DataRequired()])
+#     submit = SubmitField('Submit')
 
 

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Webcam Capture</title>
+</head>
+<body>
+
+<main class="container mt-5">
+    <h2 class="text-center mb-4">Webcam Capture</h2>
+
+    <!-- Button to open camera selection modal -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#cameraModal">
+        Select Camera
+    </button>
+
+    <!-- Camera feed container -->
+    <div class="mb-3">
+        <img id="video_feed" class="img-fluid rounded" alt="Webcam Feed">
+    </div>
+
+    <!-- Button to open image capture modal -->
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#captureModal">
+        Capture Image
+    </button>
+
+    <!-- Image capture modal -->
+    <div class="modal fade" id="captureModal" tabindex="-1" role="dialog" aria-labelledby="captureModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="captureModalLabel">Capture Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Image preview container -->
+                    <div class="mb-3">
+                        <img id="captured_image" class="img-fluid rounded" alt="Captured Image">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- Form to submit the captured image -->
+                    <form method="post" action="{{ url_for('newadd.html') }}" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        <input type="hidden" name="image_file" id="image_file_input">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera selection modal -->
+    <div class="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-labelledby="cameraModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cameraModalLabel">Select Camera</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Camera selection dropdown -->
+                    <div class="mb-3">
+                        <label for="cameraSelect" class="form-label">Select Camera:</label>
+                        <select class="form-select" id="cameraSelect"></select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+<!-- OpenCV JavaScript library -->
+<script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" crossorigin="anonymous"></script>
+
+<script>
+    // Initialize OpenCV
+    function onOpenCvReady() {
+        document.getElementById('captureModal').addEventListener('show.bs.modal', function () {
+            // Start capturing video from the selected camera
+            startVideo();
+        });
+
+        document.getElementById('captureModal').addEventListener('hide.bs.modal', function () {
+            // Stop capturing video when the modal is closed
+            stopVideo();
+        });
+
+        document.getElementById('cameraModal').addEventListener('show.bs.modal', function () {
+            // Populate the camera selection dropdown
+            getCameras();
+        });
+
+        document.getElementById('cameraSelect').addEventListener('change', function () {
+            // Change the selected camera index
+            const selectedCamera = document.getElementById('cameraSelect').value;
+            setCamera(selectedCamera);
+        });
+    }
+
+    // Initialize camera selection dropdown
+    function getCameras() {
+        fetch('/get_cameras')
+            .then(response => response.json())
+            .then(data => {
+                const cameraSelect = document.getElementById('cameraSelect');
+                cameraSelect.innerHTML = '';
+
+                data.cameras.forEach(camera => {
+                    const option = document.createElement('option');
+                    option.value = camera.index;
+                    option.text = camera.description;
+                    cameraSelect.add(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Set the selected camera index
+    function setCamera(selectedCamera) {
+        fetch(`/set_camera?index=${selectedCamera}`)
+            .then(response => response.json())
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Start capturing video from the webcam
+    function startVideo() {
+        const video_feed = document.getElementById('video_feed');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video_feed.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error('Error accessing webcam:', err);
+            });
+    }
+
+    // Stop capturing video from the webcam
+    function stopVideo() {
+        const video_feed = document.getElementById('video_feed');
+        const stream = video_feed.srcObject;
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video_feed.srcObject = null;
+        }
+    }
+
+    // Capture an image from the webcam and display it in the preview container
+    function captureImage() {
+        const video_feed = document.getElementById('video_feed');
+        const captured_image = document.getElementById('captured_image');
+        const canvas = document.createElement('canvas');
+        canvas.width = video_feed.videoWidth;
+        canvas.height = video_feed.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video_feed, 0, 0, canvas.width, canvas.height);
+
+        const image_data_url = canvas.toDataURL('image/jpeg');
+        captured_image.src = image_data_url;
+
+        // Set the captured image data in the hidden input field
+        document.getElementById('image_file_input').value = image_data_url;
+
+        // Close the image capture modal
+        $('#captureModal').modal('hide');
+    }
+</script>
+
+</body>
+</html>

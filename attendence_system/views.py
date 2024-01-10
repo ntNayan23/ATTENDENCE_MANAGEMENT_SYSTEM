@@ -1,8 +1,16 @@
 from datetime import datetime
+import os
 from flask import render_template, flash, redirect,url_for
 from attendence_system import app
 from attendence_system.form import AddStud, LoginForm
 from werkzeug.routing import BuildError
+import cv2
+
+
+video_capture = None
+selected_camera = 0  
+
+
 @app.route('/')
 @app.route('/home')
 def home():
@@ -84,3 +92,34 @@ def addStud():
         year=datetime.now().year
      
     )
+  
+
+
+@app.route('/get_cameras')
+def get_cameras():
+    global video_capture
+    camera_list = []
+    for i in range(10):  # Check up to 10 camera indices
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            camera_list.append({'index': i, 'description': f'Camera {i}'})
+            cap.release()
+    return {'cameras': camera_list}
+
+# Route to stream the webcam feed
+@app.route('/video_feed')
+def video_feed():
+    global video_capture, selected_camera
+    if video_capture is None:
+        video_capture = cv2.VideoCapture(selected_camera)
+
+    def generate():
+        while True:
+            ret, frame = video_capture.read()
+            if not ret:
+                break
+            _, jpeg = cv2.imencode('.jpg', frame)
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+
+    return app.response_class(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
