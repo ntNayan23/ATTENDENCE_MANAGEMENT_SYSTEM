@@ -359,7 +359,7 @@ async function getCameraDevices() {
     
   cameraSelect.addEventListener('change', function () {
     if (cameraSelect.value === "Select Camera..."){
-      stopCamera()
+      //stopCamera()
     }
     else{
       var constraints = {
@@ -387,6 +387,7 @@ async function getCameraDevices() {
   }
   let imageCaptureCount = 0; 
   function captureImages() {
+   // stopCamera() 
 
     const previewContainer = document.getElementById('new-preview');
 
@@ -438,33 +439,7 @@ async function getCameraDevices() {
 
 
 
-function stopCamera() {
-  var cameraFeed = document.getElementById('cameraFeed');
-  var stream = cameraFeed.srcObject;
 
-  if (stream) {
-      var tracks = stream.getTracks();
-
-      // Reset capture count
-      imageCaptureCount = 0;
-
-      tracks.forEach(function (track) {
-          track.stop();
-      });
-
-      // Set the srcObject to null to stop the video feed
-      cameraFeed.srcObject = null;
-
-      // Clear the camera device selection
-      document.getElementById('cameraDevice').value = '';
-
-      // Clear the preview container
-      var previewContainer = document.getElementById('new-preview');
-      previewContainer.innerHTML = '';
-
-      console.log("Video stream stopped");
-  }
-}
 
 function stopCamera() {
   var cameraFeed = document.getElementById('cameraFeed');
