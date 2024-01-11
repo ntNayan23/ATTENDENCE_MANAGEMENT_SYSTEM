@@ -20,6 +20,7 @@ class AddStud(FlaskForm):
     year = SelectField('Year', choices=[('0', 'Select Year'),('1', 'First Year'), ('2', 'Second Year'), ('3', 'Third Year'), ('4', 'Fourth Year')],validators=[DataRequired()])
     image_source = RadioField('Image Source', choices=[('upload', 'Upload Image'), ('webcam', 'Capture from Webcam')], default='upload', validators=[InputRequired()])
     image_fold = MultipleFileField('Image File', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
+    cam_fold = MultipleFileField("Cam Image", validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
     Submit = SubmitField(label='Add')
 
 

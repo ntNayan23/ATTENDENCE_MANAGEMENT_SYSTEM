@@ -71,7 +71,7 @@
 
     <span id="upload-fields">
       <div class="row mb-1 align-items-center">
-        {{ form.image_fold.label(class="col-form-label-lg col-sm-3 ms-3 ") }}
+        {{ form.image_fold.label(class="col-form-label-lg col-sm-3 pb-md-5 ms-3 ") }}
         <div class="col-sm-5">
           <div class="row d-flex align-items-center">
             <div class="col-sm-8">
@@ -79,8 +79,13 @@
               {{form.image_fold(class="form-control is-invalid" )}} {%for error
               in form.image_fold.errors%}
               <span>{{error}}</span>
-              {%endfor%} {%else%} {{form.image_fold(class="form-control",
-              multiple="multiple", id="image_files")}} {%endif%}
+              {%endfor%}
+               {%else%}
+                {{form.image_fold(class="form-control",
+              multiple="multiple", id="image_files")}} 
+              {%endif%}
+              <span style="color: red; font-size:smaller;"><p>Select max 3 images </p></span>
+
             </div>
             <div class="col-sm-2">
               <div
@@ -99,18 +104,33 @@
         <label class="col-form-label-lg col-sm-3 ms-3"
           >Webcam Capture Fields</label
         >
-        <div class="col-sm-3">
+        <div class="col-sm-5">
           <!-- Button trigger modal -->
+          <div class="row d-flex align-items-center">
+            <div class="col-sm-5"><button
+              type="button"
+              id="modelbtn"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#cameraModal"
+              onclick="requestCameraPermission()"
+              
+            >
+              Open Webcam
+            </button></div>
+            {{form.cam_fold(class="form-control",
+            multiple="multiple", id="cam_files")}} 
+            <div class="col-sm-5">
+              <div
+                  id="preview-container2"
+                  class="d-flex flex-row"
+                  style="width:80px"
+                ></div>
+            </div>
+          </div>
+          
+      
 
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#cameraModal"
-            onclick="requestCameraPermission()"
-          >
-            Open Webcam
-          </button>
         </div>
 
         <div
@@ -160,6 +180,7 @@
                     
                     <!-- Capture Images -->
                     <button
+                      id="capturebtn"
                       type="button"
                       class="btn btn-primary"
                       onclick="captureImages()"
@@ -385,12 +406,11 @@ async function getCameraDevices() {
 
 
   }
-  let imageCaptureCount = 0; 
   function captureImages() {
-   // stopCamera() 
-
+    let imageCaptureCount = 0; 
     const previewContainer = document.getElementById('new-preview');
-
+    previewContainer.innerHTML="";
+    document.getElementById('capturebtn').innerHTML = " ReCapture 3 images "
     // Check if the webcam feed is available
     const cameraFeed = document.getElementById('cameraFeed');
     if (!cameraFeed.srcObject) {
@@ -442,6 +462,10 @@ async function getCameraDevices() {
 
 
 function stopCamera() {
+  const previewContainer1 = document.getElementById('new-preview');
+  const previewContainermain = document.getElementById('preview-container2');
+
+
   var cameraFeed = document.getElementById('cameraFeed');
   var stream = cameraFeed.srcObject;
 
@@ -459,11 +483,18 @@ function stopCamera() {
       // Reset capture count
       imageCaptureCount = 0;
 
+      var clonedContent = previewContainer1.cloneNode(true);
+      previewContainermain.appendChild(clonedContent)
+
       // Clear the camera device selection
       document.getElementById('cameraDevice').value = '';
 
       // Clear the preview container
-      document.getElementById('new-preview').innerHTML = '';
+      previewContainer1.innerHTML = "";
+
+      document.getElementById('modelbtn').disabled = true;
+
+
 
       console.log("Camera stopped");
   }
