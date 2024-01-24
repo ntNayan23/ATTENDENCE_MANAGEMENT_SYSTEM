@@ -1,6 +1,23 @@
 {% extends "hodpg/hodlayout.html" %} {% block content %}
 
 <main class="mt-3 pt-3">
+  <div class="container-fluid">
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+        id="success-alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
   <h2 class="text-center">Student details</h2>
   <form method="Post" action="">
     {{ form.hidden_tag() }}
@@ -118,7 +135,7 @@
             >
               Open Webcam
             </button></div>
-            {{form.cam_fold(class="form-control",
+            {{form.cam_fold(class="form-control d-none ",
             multiple="multiple", id="cam_files")}} 
             <div class="col-sm-5">
               <div
@@ -219,6 +236,8 @@
       </div>
     </div>
   </form>
+</div>
+
 </main>
 
 <style>
@@ -272,6 +291,23 @@
 
 {% endblock %} {% block javascript %}
 <script>
+
+  $("#success-alert")
+  .fadeTo(1000, 500)
+  .slideUp(500, function () {
+    $("#success-alert").slideUp(500);
+  });
+
+  function displayofFunction() {
+    d1.style.display = "none";
+    
+   } ;
+
+
+   function displayonFunction() {
+    d1.style.display = "";
+    
+   } ;
   function toggleImageSource(choice) {
     if (choice === "upload") {
       document.getElementById("upload-fields").style.display = "block";
@@ -411,6 +447,7 @@ async function getCameraDevices() {
     const previewContainer = document.getElementById('new-preview');
     previewContainer.innerHTML="";
     document.getElementById('capturebtn').innerHTML = " ReCapture 3 images "
+
     // Check if the webcam feed is available
     const cameraFeed = document.getElementById('cameraFeed');
     if (!cameraFeed.srcObject) {
@@ -437,7 +474,7 @@ async function getCameraDevices() {
 
             // Set the image source to the captured image data
             img.src = imageData;
-
+                       
             // Append the image to the preview container
 
             previewContainer.appendChild(img);
@@ -448,23 +485,21 @@ async function getCameraDevices() {
             // Check if we have captured enough images
             if (imageCaptureCount === 3) {
                 clearInterval(captureInterval);
+
             }
         } else {
             clearInterval(captureInterval);
+                        // Set the FormData to the file input
+
         }
     }, 1000); // Adjust the interval (in milliseconds) as needed
 }
 
 
-
-
-
-
-
 function stopCamera() {
   const previewContainer1 = document.getElementById('new-preview');
   const previewContainermain = document.getElementById('preview-container2');
-
+  const fileInput = document.getElementById('cam_files');
 
   var cameraFeed = document.getElementById('cameraFeed');
   var stream = cameraFeed.srcObject;
@@ -486,7 +521,24 @@ function stopCamera() {
       var clonedContent = previewContainer1.cloneNode(true);
       previewContainermain.appendChild(clonedContent)
 
-      // Clear the camera device selection
+        // Convert the cloned content to images
+        const images = convertClonedContentToImages(clonedContent);
+
+        // Create a new FileList object
+        const files = [];
+
+        // Add each image as a file to the FileList
+        images.forEach((image, index) => {
+            const blob = dataURItoBlob(image.src);
+            const imageFile = new File([blob], `captured_image_${index + 1}.png`, { type: 'image/jpg' });
+            files.push(imageFile); 
+                 });
+
+        setFiles(fileInput, files);
+
+
+      
+      
       document.getElementById('cameraDevice').value = '';
 
       // Clear the preview container
@@ -498,6 +550,45 @@ function stopCamera() {
 
       console.log("Camera stopped");
   }
+}
+function setFiles(input, files) {
+  const dataTransfer = new DataTransfer();
+
+  for (const file of files) {
+      dataTransfer.items.add(new File([file], file.name, { type: file.type }));
+  }
+
+  input.files = dataTransfer.files;
+}
+
+
+function convertClonedContentToImages(container) {
+  const images = [];
+
+  // Clone the content
+  const clonedContent = container.cloneNode(true);
+
+  // Get all img elements from the cloned content
+  const clonedImages = clonedContent.getElementsByTagName('img');
+
+  // Convert HTMLCollection to an array
+  const clonedImagesArray = Array.from(clonedImages);
+
+  // Add each cloned image to the images array
+  clonedImagesArray.forEach((clonedImage) => {
+      images.push(clonedImage);
+  });
+  return images;
+}
+
+function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: 'image/png' });
 }
 
 
