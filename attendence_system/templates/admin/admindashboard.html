@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{title}}</title>
+    <link rel="icon" type="image/x-icon" href="../static/images/am.png">
     <link rel="stylesheet" href="../static/content/site.css" />
     <link rel="stylesheet" href="../static/content/bootstrap.min.css" />
     <link
@@ -110,7 +111,7 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                  <a class="dropdown-item" href="#"
+                  <a class="dropdown-item" href="{{url_for('Profile')}}"
                     ><span>Profile</span>
                     <span class="ms-5"><i class="bi bi-person-fill"></i></span>
                   </a>
@@ -172,7 +173,7 @@
               <div class="collapse" id="layouts">
                 <ul class="navbar-nav ps-3">
                   <li>
-                    <a href="#" class="nav-link px-3">
+                    <a href="addhod" class="nav-link px-3">
                       <span class="me-2"
                         ><i class="bi bi-person-plus-fill"></i
                       ></span>

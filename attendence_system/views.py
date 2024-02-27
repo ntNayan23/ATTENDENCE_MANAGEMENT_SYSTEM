@@ -2,13 +2,12 @@ from datetime import datetime
 import os
 from flask import render_template, flash, redirect, request,url_for
 from attendence_system import app
-from attendence_system.form import AddStud, LoginForm
+from attendence_system.form import AddStud, LoginForm, addHOD
 from werkzeug.routing import BuildError
 import cv2
 
 
-video_capture = None
-selected_camera = 0  
+
 
 
 @app.route('/')
@@ -95,4 +94,41 @@ def addStud():
             year=datetime.now().year
         
         )
+    
+
   
+@app.route('/addhod', methods=['GET', 'POST'])
+def addhod():
+    form = addHOD()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            print(form.cam_fold.data)
+            try:
+                flash(f'{form.Full_name.data} added sucessfully!','success' )                
+                return redirect(url_for("addhod"))
+            except BuildError as  e:
+                flash(f'{e}', "danger")
+    else:
+        return render_template(
+            "admin/addhod.html",
+            title='Add Student',
+            form=form,
+            year=datetime.now().year
+        
+        )
+    
+@app.route('/Profile', methods=['GET', 'POST'])
+def Profile():
+    if request.method == 'POST':
+            try:
+                return redirect(url_for("profile"))
+            except BuildError as  e:
+                flash(f'{e}', "danger")
+    else:
+        return render_template(
+            "admin/profile.html",
+            title='Profile',
+            year=datetime.now().year
+        
+        )
+    
