@@ -118,11 +118,12 @@
           <div class="row d-flex align-items-center">
             <div class="col-sm-5"><button
               type="button"
+              name="button1"
               id="modelbtn"
               class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#cameraModal"
-              onclick="requestCameraPermission()"
+              
               
             >
               Open Webcam
@@ -463,7 +464,7 @@ async function getCameraDevices() {
             context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
 
             // Get the image data from the canvas
-            const imageData = canvas.toDataURL('image/png');
+            const imageData = canvas.toDataURL('image/jpeg');
 
             // Set the image source to the captured image data
             img.src = imageData;
@@ -493,7 +494,7 @@ function stopCamera() {
   const previewContainer1 = document.getElementById('new-preview');
   const previewContainermain = document.getElementById('preview-container2');
   const fileInput = document.getElementById('cam_files');
-
+  const full_name = document.getElementById('Full_name').value.trim(); 
   var cameraFeed = document.getElementById('cameraFeed');
   var stream = cameraFeed.srcObject;
 
@@ -523,7 +524,7 @@ function stopCamera() {
         // Add each image as a file to the FileList
         images.forEach((image, index) => {
             const blob = dataURItoBlob(image.src);
-            const imageFile = new File([blob], `captured_image_${index + 1}.png`, { type: 'image/jpg' });
+            const imageFile = new File([blob], `${full_name}_${index + 1}.jpg`, { type: 'image/jpeg' });
             files.push(imageFile); 
                  });
 
@@ -581,7 +582,7 @@ function dataURItoBlob(dataURI) {
     for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
     }
-    return new Blob([ab], { type: 'image/png' });
+    return new Blob([ab], { type: 'image/jpg' });
 }
 
 
@@ -594,6 +595,12 @@ function removeOption(selectId, valueToRemove) {
           break;
       }
   }
+}
+
+
+function handleClick() {
+  // Redirect to the specified URL
+  window.location.href = "{{ url_for('CameraRequest') }}";
 }
 </script>
 {% endblock %}
