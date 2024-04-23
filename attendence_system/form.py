@@ -4,6 +4,8 @@ from wtforms.validators import DataRequired,Length,Email,Regexp,InputRequired
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import MultipleFileField
 
+from attendence_system.model import BranchName
+
 
 class LoginForm(FlaskForm):
     # username = StringField(validators=[DataRequired(),Length(min=8,max=20,message='Please provide a valid name'),Regexp('^[A-Za-z][A-Za-z0-9_.]*$',0,message='Usernames must have only letters, " "numbers, dots or underscores')])
@@ -29,12 +31,21 @@ class addHOD(FlaskForm):
     date_of_joining = DateField('Joining Date', validators=[DataRequired()])
     teacher_id = StringField('Teacher ID', validators=[DataRequired()])
     email = StringField(validators=[DataRequired(),Email()])
+    branch_name = SelectField('Branch Name', coerce=int, choices=[(0, 'Select Branch...')])
     image_source = RadioField('Image Source', choices=[('upload', 'Upload Image'), ('webcam', 'Capture from Webcam')], default='upload', validators=[InputRequired()])
     image_fold = MultipleFileField('Image File', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
     cam_fold = MultipleFileField("Cam Image", validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
     Submit = SubmitField(label='Add')
+    
+    
+    def __init__(self, *args, **kwargs):
+        super(addHOD, self).__init__(*args, **kwargs)
+        self.branch_name.choices += [(branch.id, branch.name) for branch in BranchName.query.all()]
 
-
-
+class Branchform(FlaskForm):
+    Branch_name = StringField('Branch Name', validators=[DataRequired()])
+    submit_button1 = SubmitField('ADD')
+    submit_button2 = SubmitField('Delete')
+   
 
 

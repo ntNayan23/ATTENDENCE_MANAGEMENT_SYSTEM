@@ -112,6 +112,15 @@
      
     </div>
     <div class="row mb-1 align-items-center">
+      {{ form.branch_name.label(class="col-sm-3 ms-3 col-form-label-lg") }}
+      <div class="col-sm-3">
+        {%if form.branch_name.errors%} {{form.branch_name(class="form-select is-invalid")}}
+        {%for error in form.branch_name.errors%}
+        <span>{{error}}</span>
+        {%endfor%} {%else%} {{form.branch_name(class="form-select")}} {%endif%}
+      </div>
+    </div>
+    <div class="row mb-1 align-items-center">
       {{ form.email.label(class="col-sm-3 ms-3 col-form-label-lg") }}
       <div class="col-sm-3">
         {%if form.email.errors%} {{form.email(class="form-control
@@ -232,17 +241,7 @@
                     </div>
                    
                   </div>
-                  <div class="col-sm-5">
-                    <!-- Select Camera Device -->
-                    <div class="mb-3">
-                      <label for="cameraDevice" class="form-label"
-                        >Select Camera Device:</label
-                      >
-                      <select class="form-select" id="cameraDevice" >
-                       
-                      </select>
-                    </div>
-                    
+                
                     <!-- Capture Images -->
                     <button
                       id="capturebtn"
@@ -252,21 +251,7 @@
                     >
                       Capture 3 Images
                     </button>
-                    <div class="col-sm-5">
-                      <!-- Captured Image Previews -->
-                      <div class="mb-3">
-                          <label for="preview1" class="form-label">Captured Image 1:</label>
-                          <img id="image_preview_1" src="" class="captured-image-preview" alt="Captured Image 1">
-                      </div>
-                      <div class="mb-3">
-                          <label for="preview2" class="form-label">Captured Image 2:</label>
-                          <img id="image_preview_2" src="" class="captured-image-preview" alt="Captured Image 2">
-                      </div>
-                      <div class="mb-3">
-                          <label for="preview3" class="form-label">Captured Image 3:</label>
-                          <img id="image_preview_3" src="" class="captured-image-preview" alt="Captured Image 3">
-                      </div>
-                  </div>
+                   
                   </div>
                 </div>
               </div>

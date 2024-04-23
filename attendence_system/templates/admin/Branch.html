@@ -1,0 +1,66 @@
+{% extends "admin/adminlayout.html" %}
+{% block content %}
+<main class="mt-3 pt-3">
+    <div class="container-fluid">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %} {% for category, message in messages %}
+          <div
+            class="alert alert-{{ category }} alert-dismissible fade show"
+            role="alert"
+            id="success-alert"
+          >
+            {{ message }}
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          {% endfor %} {% endif %} {% endwith %}
+      <h2 class="text-center">Branch</h2>
+      <form method="Post" action="/Branch">
+        {{ form.hidden_tag() }}
+        <div class="row mb-1 align-items-center">
+          {{ form.Branch_name.label(class="col-sm-3 ms-3 col-form-label-lg") }}
+          <div class="col-sm-3">
+            {%if form.Branch_name.errors%} {{form.Branch_name(class="form-control
+            is-invalid",placeholder='Enter Branch Name' )}} {%for error in
+            form.Branch_name.errors%}
+            <span>{{error}}</span>
+            {%endfor%} {%else%} {{form.Branch_name(class="form-control",
+            placeholder='Enter Branch Name ')}} {%endif%}
+          </div>
+        </div>
+        
+        <div class="row mb-1 mt-4 d-flex justify-content-center">
+            <div class="col-sm-5">
+              <span class="w-100 custom-btn btn-15 text-center"
+                >{{form.submit_button1(class="btn bg-success w-100 " ) }}</span
+              >
+            </div>
+            <div class="col-sm-5">
+                <span class="w-100 custom-btn btn-15 text-center"
+                  >{{form.submit_button2 (class="btn bg-danger w-100 " ) }}</span
+                >
+              </div>
+          </div>
+         
+        </div>
+       
+      </form>
+    </div>
+    
+
+</main>
+
+{% endblock %} 
+{% block javascript %}
+<script>
+  $("#success-alert")
+  .fadeTo(1000, 500)
+  .slideUp(300, function () {
+    $("#success-alert").slideUp(500);
+  });
+  </script
+{% endblock %}

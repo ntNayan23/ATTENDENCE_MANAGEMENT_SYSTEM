@@ -3,9 +3,14 @@ import os
 import shutil
 import time
 from click import FileError
+from attendence_system import db
 import cv2
 
 cam_act = False
+
+
+
+
 def delete_all_files(directory_path):
     try:
         # Delete the folder and all its contents
@@ -149,6 +154,26 @@ def request_camera_permission():
     print("Camera permission granted.")
     return print("working")
 
+def find_file(file_name, search_path="."):
+    """
+    Find the file path by searching for the file name within the specified directory
+    or its subdirectories.
+
+    Args:
+        file_name (str): The name of the file to search for.
+        search_path (str): The directory path to search in. Defaults to the current directory.
+
+    Returns:
+        str: The absolute path to the file if found, or None if not found.
+    """
+    # Iterate over the directory and its subdirectories
+    for root, dirs, files in os.walk(search_path):
+        # Check if the file name is in the list of files in the current directory
+        if file_name in files:
+            # Return the absolute path to the file
+            return os.path.join(root, file_name)
+    # File not found
+    return None
 
 def rename_images(directory_path, new_name):
     # Counter for generating unique names
