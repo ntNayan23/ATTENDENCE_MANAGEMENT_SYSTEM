@@ -1,10 +1,14 @@
 import base64
 import os
+import pickle
 import shutil
 import time
 from click import FileError
+from flask import flash
+import numpy as np
 from attendence_system import db
 import cv2
+import face_recognition
 
 cam_act = False
 
@@ -151,8 +155,8 @@ def request_camera_permission():
 
     # Release the camera
     cap.release()
-    print("Camera permission granted.")
-    return print("working")
+    return None
+    
 
 def find_file(file_name, search_path="."):
     """
@@ -193,3 +197,36 @@ def rename_images(directory_path, new_name):
             os.rename(current_path, new_path)
             # Increment the counter
             count += 1
+            
+            
+def FaceEncode(image_files, directory_path):
+    serialized_encoding_list = []
+    for file_name in image_files:
+        file_path = os.path.join(directory_path, file_name)
+        if os.path.exists(file_path):
+            image = face_recognition.load_image_file(file_path)
+            face_encodings = face_recognition.face_encodings(image)
+            if face_encodings:
+                face_encoding = face_encodings[0]
+                # print("this is face encoding", face_encoding)
+                serialized_encoding = pickle.dumps(face_encoding)    
+                # print("this is serialized_encoding", serialized_encoding)     
+            else:
+                flash(f"No face found in {file_name}", "warning")
+        else:
+            flash(f"File {file_name} not found!", "danger")
+        serialized_encoding_list.append(serialized_encoding)
+    return serialized_encoding_list
+
+
+
+def compare_face_encodings(list1, list2):
+    try:
+        deserialized_encoding_1 = pickle.loads(list1)
+        deserialized_encoding_2 = pickle.loads(list2)
+        if np.array_equal(deserialized_encoding_1,deserialized_encoding_2):
+            print("The serialized encodings are the same")
+        else:
+            print("The serialized encodings are different")
+    except Exception as e :
+        print(e)

@@ -1,5 +1,5 @@
 from os import environ
-from attendence_system import app , db
+from attendence_system import app 
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')
