@@ -21,7 +21,7 @@ from sqlalchemy.exc import (
 from werkzeug.routing import BuildError
 import cv2
 
-from attendence_system.function import FaceEncode, capture_images, compare_face_encodings, find_file, generate_frames, rename_images, request_camera_permission, stop_camera
+from attendence_system.function import FaceEncode, capture_images, compare_face_encodings, find_file, generate_frames, generate_password, rename_images, request_camera_permission, stop_camera
 
 camera_active = False
 
@@ -145,6 +145,7 @@ def addhod():
             teacher_id = form.teacher_id.data
             BranchName = form.branch_name.data
             teacher_id = form.teacher_id.data
+            password = generate_password()
             if form.image_source.data == 'webcam':
                 directory_path = "captured_images"
                 rename_images(directory_path, Name) 
@@ -169,11 +170,14 @@ def addhod():
                             new_face_encoding = FaceEncoding(encoding=item,employee_id=new_employee.id)         
                             db.session.add(new_face_encoding)
                             db.session.commit()   
-                        serial_data = db.session.query(FaceEncoding.encoding).filter(FaceEncoding.id == 1).first()
-                        serialized_data = serial_data.encoding
-                        compare_face_encodings(serialized_encoding_list[0],bytes(serialized_data))  
+                        # serial_data = db.session.query(FaceEncoding.encoding).filter(FaceEncoding.id == 1).first()
+                        # serialized_data = serial_data.encoding
+                        # compare_face_encodings(serialized_encoding_list[0],bytes(serialized_data))  
                         stop_camera(camera_active)
-                        flash(f'{form.Full_name.data} added successfully!', 'success')
+                        msg = Message('HOD ID and Password ', sender='nayanthakre379@gmail.com', recipients=[email] )
+                        msg.body = f"Use this to Login into the HOD Dashboard \n Login id :- {teacher_id}\n Password:-{password}"
+                        mail.send(msg)
+                        flash(f'{form.Full_name.data} added successfully and Login Credential Is send to the Email Address ', 'success')
                         return redirect(url_for("addhod")) 
                 except Exception as e:
                     db.session.rollback()

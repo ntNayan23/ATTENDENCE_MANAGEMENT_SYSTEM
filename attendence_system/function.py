@@ -1,7 +1,9 @@
 import base64
 import os
 import pickle
+import secrets
 import shutil
+import string
 import time
 from click import FileError
 from flask import flash
@@ -230,3 +232,13 @@ def compare_face_encodings(list1, list2):
             print("The serialized encodings are different")
     except Exception as e :
         print(e)
+        
+        
+def generate_password(length=6):
+    # Define the characters to be used in the password
+    characters = string.ascii_letters + string.digits + string.punctuation
+
+    # Generate the password
+    password = ''.join(secrets.choice(characters) for i in range(length))
+    
+    return password
