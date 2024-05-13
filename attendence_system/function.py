@@ -236,7 +236,7 @@ def compare_face_encodings(list1, list2):
         
 def generate_password(length=6):
     # Define the characters to be used in the password
-    characters = string.ascii_letters + string.digits + string.punctuation
+    characters = string.ascii_letters + string.digits
 
     # Generate the password
     password = ''.join(secrets.choice(characters) for i in range(length))

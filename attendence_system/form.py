@@ -16,18 +16,25 @@ class LoginForm(FlaskForm):
 
 class AddStud(FlaskForm):
     Full_name = StringField('Name', validators=[DataRequired()])
-    DOB_field = DateField('Date of Birth (DOB)', format='%Y-%m-%d', validators=[DataRequired()])
+    DOB_field1 = DateField('Date of Birth (DOB)', format='%Y-%m-%d', validators=[DataRequired()])
     admission_date = DateField('Admission Date', validators=[DataRequired()])
     student_id = StringField('Student ID', validators=[DataRequired()])
+    email = StringField(validators=[DataRequired(),Email()])
+    phone_number = StringField('Phone Number', validators=[DataRequired(message='Phone number is required'),Regexp(regex=r'^\d{10}$', message='Phone number must be 10 digits')])
     year = SelectField('Year', choices=[('0', 'Select Year'),('1', 'First Year'), ('2', 'Second Year'), ('3', 'Third Year'), ('4', 'Fourth Year')],validators=[DataRequired()])
+    branch_name = SelectField('Branch Name', coerce=int, choices=[(0, 'Select Branch...')])
     image_source = RadioField('Image Source', choices=[('upload', 'Upload Image'), ('webcam', 'Capture from Webcam')], default='upload', validators=[InputRequired()])
     image_fold = MultipleFileField('Image File', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
     cam_fold = MultipleFileField("Cam Image", validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!'),Length(max=3, message='You can upload a maximum of 3 files.')])
     Submit = SubmitField(label='Add')
+    
+    def __init__(self, *args, **kwargs):
+        super(AddStud, self).__init__(*args, **kwargs)
+        self.branch_name.choices += [(branch.id, branch.name) for branch in BranchName.query.all()]
 
 class addHOD(FlaskForm):
     Full_name = StringField('Name', validators=[DataRequired()])
-    DOB_field = DateField('Date of Birth (DOB)', format='%Y-%m-%d', validators=[DataRequired()])
+    DOB_field2 = DateField('Date of Birth (DOB)', format='%Y-%m-%d', validators=[DataRequired()])
     date_of_joining = DateField('Joining Date', validators=[DataRequired()])
     teacher_id = StringField('Teacher ID', validators=[DataRequired()])
     email = StringField(validators=[DataRequired(),Email()])

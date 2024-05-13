@@ -1,5 +1,28 @@
 from attendence_system import db
+from flask_login import UserMixin
 
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # Role can be 'hod', 'teacher', or 'student'
+
+    # # Additional fields for Flask-Login
+    # is_authenticated = db.Column(db.Boolean, default=False)
+    # is_active = db.Column(db.Boolean, default=True)
+    # is_anonymous = db.Column(db.Boolean, default=False)
+
+    # # Define relationship with Employee
+    # employee = db.relationship('Employee', backref='user', uselist=False)
+
+    # # Define relationship with Student
+    # student = db.relationship('Student', backref='user', uselist=False)
+
+    def __repr__(self):
+        return f'{self.username}'
+    
+    
 class BranchName(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
@@ -21,6 +44,7 @@ class Employee(db.Model):
     joining_date = db.Column(db.Date)
     email = db.Column(db.String(120), unique=True, nullable=False)
     teacher_id = db.Column(db.String(20), unique=True)
+    is_teacher = db.Column(db.Boolean, default=False) 
     is_hod = db.Column(db.Boolean, default=False)
      
     # Foreign key column to reference BranchName
@@ -43,6 +67,7 @@ class Student(db.Model):
     dob = db.Column(db.Date)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone_number = db.Column(db.String(15), unique=True, nullable=False)
+    student_id = db.Column(db.String(20), unique=True)
     # Foreign key column to reference BranchName
     branch_id = db.Column(db.Integer, db.ForeignKey('branch_name.id'), nullable=False)
     

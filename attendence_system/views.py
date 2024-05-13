@@ -10,7 +10,7 @@ import time
 from flask import  render_template, flash, redirect, request,url_for,Response
 from attendence_system import app , mail, db
 from attendence_system.form import AddStud, LoginForm, addHOD, Branchform
-from attendence_system.model import BranchName, Employee, FaceEncoding
+from attendence_system.model import BranchName, Employee, FaceEncoding, User,Student
 from sqlalchemy.exc import (
     IntegrityError,
     DataError,
@@ -95,23 +95,75 @@ def hoddashboard():
 
 @app.route('/addStud',  methods=['GET','POST'])
 def addStud():
-    form = AddStud()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            print(form.cam_fold.data)
-            try:
-                flash(f'{form.Full_name.data} added sucessfully!','success' )                
-                return redirect(url_for("addStud"))
-            except BuildError as  e:
-                flash(f'{e}', "danger")
-    else:
-        return render_template(
-            "hodpg/addstudent.html",
-            title='Add Student',
-            form=form,
-            year=datetime.now().year
-        
-        )
+    try:
+        camera_active = False
+        form = AddStud() 
+        if request.method == 'POST':
+            Name = form.Full_name.data
+            dob = form.DOB_field1.data
+            doa = form.admission_date.data
+            year = form.year.data
+            email = form.email.data
+            phone_number = form.phone_number.data
+            student_id = form.student_id.data
+            BranchName = form.branch_name.data
+            password = generate_password()
+            if form.image_source.data == 'webcam':
+                directory_path = "captured_images"
+                rename_images(directory_path, Name) 
+                image_files = os.listdir(directory_path)                        
+                serialized_encoding_list = FaceEncode(image_files, directory_path)
+                try:
+                    existing_student = Student.query.filter_by(student_id=student_id).first()
+                    if existing_student:
+                        flash(f"Student ID {student_id} already exists!", "danger")
+                        return redirect(url_for("addStud")) 
+                    else:
+                        new_student = Student(name=Name, dob=dob,  
+                                                admission_date= doa,  
+                                                studying_year=year,
+                                                student_id=student_id, 
+                                                branch_id=BranchName,
+                                                email = email ,
+                                                phone_number= phone_number
+                                                )
+                        db.session.add(new_student)
+                        db.session.commit()  
+                        for item in serialized_encoding_list :
+                            new_face_encoding = FaceEncoding(encoding=item,student_id =new_student.id)         
+                            db.session.add(new_face_encoding)
+                            db.session.commit() 
+                        # newuser = User(username=new_student,password = password ,role="Student")
+                        # db.session.add(newuser)
+                        # db.session.commit()
+                        # serial_data = db.session.query(FaceEncoding.encoding).filter(FaceEncoding.id == 1).first()
+                        # serialized_data = serial_data.encoding
+                        # compare_face_encodings(serialized_encoding_list[0],bytes(serialized_data))  
+                        stop_camera(camera_active)
+                        msg = Message('HOD ID and Password ', sender='nayanthakre379@gmail.com', recipients=[email] )
+                        msg.body = f"Use this to Login into the HOD Dashboard \n Login id :- {student_id}\n Password:-{password}"
+                        mail.send(msg)
+                        flash(f'{form.Full_name.data} added successfully and Login Credential Is send to the Email Address ', 'success')
+                        return redirect(url_for("addStud")) 
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f"An error occurred: {str(e)}", "danger")
+                    return redirect(url_for("addStud")) 
+            else:
+                flash("Invalid image source", "danger")
+                return redirect(url_for("addStud"))  
+        else:
+            return render_template(
+                "hodpg/addstudent.html",
+                title='Add Student',
+                form=form,
+                year=datetime.now().year
+            )
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", "danger")
+        return redirect(url_for("addStud")) 
+
+    
 @app.route('/video')
 def video():
     global camera_active
@@ -139,7 +191,7 @@ def addhod():
         form = addHOD()  
         if request.method == 'POST':
             Name = form.Full_name.data
-            dob = form.DOB_field.data
+            dob = form.DOB_field2.data
             doj = form.date_of_joining.data
             email = form.email.data
             teacher_id = form.teacher_id.data
@@ -161,6 +213,7 @@ def addhod():
                                                 joining_date=doj,  
                                                 email=email,
                                                 teacher_id=teacher_id, 
+                                                is_teacher = True,
                                                 is_hod=False,
                                                 branch_id=BranchName
                                                 )
@@ -169,7 +222,10 @@ def addhod():
                         for item in serialized_encoding_list :
                             new_face_encoding = FaceEncoding(encoding=item,employee_id=new_employee.id)         
                             db.session.add(new_face_encoding)
-                            db.session.commit()   
+                            db.session.commit() 
+                        newuser = User(username=teacher_id,password = password ,role="Teacher")
+                        db.session.add(newuser)
+                        db.session.commit()
                         # serial_data = db.session.query(FaceEncoding.encoding).filter(FaceEncoding.id == 1).first()
                         # serialized_data = serial_data.encoding
                         # compare_face_encodings(serialized_encoding_list[0],bytes(serialized_data))  

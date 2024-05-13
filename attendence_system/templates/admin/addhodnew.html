@@ -80,12 +80,12 @@
       </div>
     </div>
     <div class="row mb-1 align-items-center">
-      {{ form.DOB_field.label(class="col-sm-3 ms-3 col-form-label-lg") }}
+      {{ form.DOB_field2.label(class="col-sm-3 ms-3 col-form-label-lg") }}
       <div class="col-sm-2">
-        {%if form.DOB_field.errors%} {{form.DOB_field(class="form-control
-        is-invalid")}} {%for error in form.DOB_field.errors%}
+        {%if form.DOB_field2.errors%} {{form.DOB_field2(class="form-control
+        is-invalid")}} {%for error in form.DOB_field2.errors%}
         <span>{{error}}</span>
-        {%endfor%} {%else%} {{form.DOB_field(class="form-control")}} {%endif%}
+        {%endfor%} {%else%} {{form.DOB_field2(class="form-control")}} {%endif%}
       </div>
     </div>
     <div class="row mb-1 align-items-center">
