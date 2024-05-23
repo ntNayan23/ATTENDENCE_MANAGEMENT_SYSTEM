@@ -1,3 +1,4 @@
+from datetime import datetime
 from attendence_system import db
 from flask_login import UserMixin
 
@@ -91,22 +92,24 @@ class FaceEncoding(db.Model):
     
     
     def __repr__(self):
-        return  f'FaceEncoding(id={self.id})'
+        return  f'FaceEncoding(id={self.id}:encoding={self.encoding}:employee_id={self.employee_id}:student_id={self.student_id})'
     
     
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    date = db.Column(db.Date, nullable=False, default=datetime.now().date)
+    in_time = db.Column(db.Time, nullable=False, default=datetime.now().time)
+    out_time = db.Column(db.Time, nullable=True)
     
     # Foreign key column to reference Employee
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)
     
     # Foreign key column to reference Student
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=True)
     
     def __repr__(self):
-        return f'{self.timestamp}'
+        return f'Attendance(id={self.id},date={self.date}, in_time={self.in_time}, out_time={self.out_time})'
 
     
     

@@ -210,6 +210,7 @@ def FaceEncode(image_files, directory_path):
             face_encodings = face_recognition.face_encodings(image)
             if face_encodings:
                 face_encoding = face_encodings[0]
+                print(face_encoding.shape)
                 # print("this is face encoding", face_encoding)
                 serialized_encoding = pickle.dumps(face_encoding)    
                 # print("this is serialized_encoding", serialized_encoding)     
@@ -226,6 +227,7 @@ def compare_face_encodings(list1, list2):
     try:
         deserialized_encoding_1 = pickle.loads(list1)
         deserialized_encoding_2 = pickle.loads(list2)
+        
         if np.array_equal(deserialized_encoding_1,deserialized_encoding_2):
             print("The serialized encodings are the same")
         else:

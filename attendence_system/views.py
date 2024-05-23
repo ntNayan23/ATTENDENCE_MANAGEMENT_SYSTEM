@@ -226,9 +226,11 @@ def addhod():
                         newuser = User(username=teacher_id,password = password ,role="Teacher")
                         db.session.add(newuser)
                         db.session.commit()
-                        # serial_data = db.session.query(FaceEncoding.encoding).filter(FaceEncoding.id == 1).first()
-                        # serialized_data = serial_data.encoding
-                        # compare_face_encodings(serialized_encoding_list[0],bytes(serialized_data))  
+                        serial_data = db.session.query(FaceEncoding.encoding).filter(FaceEncoding.id == 1).first()
+                        print(type(serial_data))
+                        serialized_data = serial_data.encoding
+                        print(serial_data)
+                        compare_face_encodings(serialized_encoding_list[0],bytes(serialized_data))  
                         stop_camera(camera_active)
                         msg = Message('HOD ID and Password ', sender='nayanthakre379@gmail.com', recipients=[email] )
                         msg.body = f"Use this to Login into the HOD Dashboard \n Login id :- {teacher_id}\n Password:-{password}"
