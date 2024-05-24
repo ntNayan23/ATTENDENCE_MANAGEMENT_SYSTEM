@@ -1,6 +1,7 @@
 
 import json
 import os
+import threading
 from flask import Flask
 from flask_mail import *
 from flask_sqlalchemy import SQLAlchemy 
@@ -21,4 +22,5 @@ app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///AMS.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=True
 db = SQLAlchemy(app)
 mail = Mail(app)
+stop_task = threading.Event()
 import attendence_system.views

@@ -53,6 +53,23 @@ class Branchform(FlaskForm):
     Branch_name = StringField('Branch Name', validators=[DataRequired()])
     submit_button1 = SubmitField('ADD')
     submit_button2 = SubmitField('Delete')
+    
+class TaskForm(FlaskForm):
+    Start = SubmitField('Start Attendance')
+    Stop = SubmitField('Stop Attendance')
+
+class AttendanceForm(FlaskForm):
+    branch_name = SelectField('Select Branch Name', coerce=int, choices=[(0, 'Select Branch...')])
+    name = SelectField('Select Candidate', coerce=int, choices=[(0, 'Select Candidate...'),(1, 'Students'),(2, 'Teachers'),(3, 'Both')])
+    Generate_attendance = SubmitField('Generate')
+    Download  = SubmitField('Download Excel')
+    def __init__(self, *args, **kwargs):
+        super(AttendanceForm, self).__init__(*args, **kwargs)
+        branches = BranchName.query.all()
+        last_value = branches[-1].id if branches else None
+        self.branch_name.choices += [(branch.id, branch.name) for branch in branches ]
+        self.branch_name.choices.append((last_value, 'All'))
+    
    
 
 

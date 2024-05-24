@@ -7,10 +7,12 @@ from flask_mail import *
 import face_recognition
 import os
 import time
-from flask import  render_template, flash, redirect, request,url_for,Response
-from attendence_system import app , mail, db
-from attendence_system.form import AddStud, LoginForm, addHOD, Branchform
-from attendence_system.model import BranchName, Employee, FaceEncoding, User,Student
+from io import BytesIO
+import pandas as pd
+from flask import  render_template, flash, redirect, request, send_file,url_for,Response
+from attendence_system import app , mail, db, stop_task
+from attendence_system.form import AddStud, AttendanceForm, LoginForm, TaskForm, addHOD, Branchform
+from attendence_system.model import Attendance, BranchName, Employee, FaceEncoding, User,Student
 from sqlalchemy.exc import (
     IntegrityError,
     DataError,
@@ -21,7 +23,9 @@ from sqlalchemy.exc import (
 from werkzeug.routing import BuildError
 import cv2
 
-from attendence_system.function import FaceEncode, capture_images, compare_face_encodings, find_file, generate_frames, generate_password, rename_images, request_camera_permission, stop_camera
+from attendence_system.function import FaceEncode, capture_images, compare_face_encodings, download_excel, find_file, generate_frames, generate_password, rename_images, stop_camera, background_task
+from threading import Thread 
+import threading
 
 camera_active = False
 
@@ -114,7 +118,7 @@ def addStud():
                 image_files = os.listdir(directory_path)                        
                 serialized_encoding_list = FaceEncode(image_files, directory_path)
                 try:
-                    existing_student = Student.query.filter_by(student_id=student_id).first()
+                    existing_student = Student.query.filter_by(student_id_2=student_id).first()
                     if existing_student:
                         flash(f"Student ID {student_id} already exists!", "danger")
                         return redirect(url_for("addStud")) 
@@ -122,7 +126,7 @@ def addStud():
                         new_student = Student(name=Name, dob=dob,  
                                                 admission_date= doa,  
                                                 studying_year=year,
-                                                student_id=student_id, 
+                                                student_id_2=student_id, 
                                                 branch_id=BranchName,
                                                 email = email ,
                                                 phone_number= phone_number
@@ -147,9 +151,11 @@ def addStud():
                         return redirect(url_for("addStud")) 
                 except Exception as e:
                     db.session.rollback()
+                    print(e)
                     flash(f"An error occurred: {str(e)}", "danger")
                     return redirect(url_for("addStud")) 
             else:
+                
                 flash("Invalid image source", "danger")
                 return redirect(url_for("addStud"))  
         else:
@@ -363,4 +369,150 @@ def Profile():
         
         )
    
- 
+
+@app.route('/control_task', methods=['GET', 'POST'])
+def control_task():
+    task_from = TaskForm()
+    attendance_form = AttendanceForm()
+    attendance_records = [] 
+    if request.method == 'POST':
+        if task_from.validate_on_submit():  
+            global stop_task
+            if 'Start' in request.form:
+                if not stop_task.is_set():
+                    stop_task.clear()
+                    thread = threading.Thread(target=background_task)
+                    thread.daemon = True  # Daemonize thread
+                    thread.start()
+                    print("working task")
+                    return redirect(url_for('control_task')) 
+            elif 'Stop' in request.form:
+                stop_task.set()
+                return redirect(url_for('control_task')) 
+        if attendance_form.validate_on_submit(): 
+            if 'Generate_attendance' in request.form:
+                Selected_brach_ID = attendance_form.branch_name.data
+                Selected_brach_name = dict(attendance_form.branch_name.choices).get(Selected_brach_ID) 
+                selected_value = attendance_form.name.data
+                Candidate_selected =  dict(attendance_form.name.choices).get(selected_value)
+              
+                # attendance_records = Attendance.query.all()
+                if Candidate_selected == 'Students':
+                 
+    # Selected students and a particular branch is selected
+                    if Selected_brach_name != 'all':
+                    
+                        attendance_records =(db.session.query(
+                                        Attendance,
+                                        Student.name.label('student_name'),  # Include student name in the result
+                                        BranchName.name.label('branch_name')  # Include branch name in the result
+                                    )
+                                    .join(Student, Attendance.student_id == Student.id)  # Join with Student table
+                                    .join(BranchName,Student.branch_id == Selected_brach_ID)  # Join with BranchName table
+                                    .filter(Attendance.student_id != None)  # Filter only student records
+                                    
+                                ).all()
+
+
+                        print(attendance_records)
+                    else:
+                        # All branches are selected, select all students with their branch name
+                        attendance_records = (
+                            Attendance.query
+                            .join(Student, Attendance.student_id == Student.id)
+                            .join(BranchName, Student.branch_id == Selected_brach_ID)
+                            .add_column(Student.name)
+                            .all()
+                        )
+                elif Candidate_selected == 'Teachers':
+                    # Selected employees and a particular branch is selected
+                    if Selected_brach_name != 'all':
+                        attendance_records =(db.session.query(
+                                        Attendance,
+                                        Employee.name.label('student_name'),  # Include student name in the result
+                                        BranchName.name.label('branch_name')  # Include branch name in the result
+                                    )
+                                    .join(Employee, Attendance.employee_id == Employee.id)  # Join with Student table
+                                    .join(BranchName,Employee.branch_id == Selected_brach_ID)  # Join with BranchName table
+                                    .filter(Attendance.employee_id != None)  # Filter only student records
+                                    
+                                ).all()
+                        print(attendance_records)
+                    else:
+                        # All branches are selected, select all employees with their branch name
+                        attendance_records = (
+                            Attendance.query
+                            .join(Employee, Attendance.employee_id == Employee.id)
+                            .join(BranchName, Student.branch_id == Selected_brach_ID)
+                            .add_columns(Employee.name) 
+                            .all()
+                        )
+                elif Candidate_selected == 'Both':
+                    # Both students and employees are selected
+                    if Selected_brach_name != 'all':
+                        # Select students and employees related to the selected branch
+                        attendance_records = (
+                            Attendance.query
+                            .join(Student, Attendance.student_id == Student.id)
+                            .filter(Student.branch_id == Selected_brach_ID)
+                            .add_columns(Student.name)  # Add student name to the query
+                            .filter(Student.branch_id == Selected_brach_ID)
+                            .union(
+                                Attendance.query
+                                .join(Employee, Attendance.employee_id == Employee.id)
+                                .filter(Employee.branch_id == Selected_brach_ID)
+                                .add_columns(Employee.name)  # Add employee name to the query
+                                .filter(Employee.branch_id == Selected_brach_ID)
+                            )
+                            .all()
+                        )
+                        print(attendance_records)
+                    else:
+                        # All branches are selected, select all students and employees with their branch name
+                        attendance_records = (
+                            Attendance.query
+                              .join(Student, Attendance.student_id == Student.id)
+                              .join(BranchName, Student.branch_id == BranchName.id)
+                               .add_columns(Student.name)
+                            .union(
+                                Attendance.query
+                                 .join(Employee, Attendance.employee_id == Employee.id)
+                                 .join(BranchName, Employee.branch_id == BranchName.id)
+                                 .add_columns(Employee.name)  
+                            )
+                            .all()
+                        )
+                else:
+                    # Handle the case when no value is selected
+                    attendance_records = []
+            elif'Download' in request.form:
+                attendance_records = Attendance.query.all()
+    # Convert the records to a list of dictionaries
+                print(attendance_records)
+                attendance_data = [{
+                    'ID': record.id,
+                    'Date': record.date,
+                    'In Time': record.in_time,
+                    'Out Time': record.out_time,
+                    'Employee ID': record.employee_id,
+                    'Student ID': record.student_id
+                } for record in attendance_records]
+                download_excel(attendance_data)
+                
+            
+       
+    else:
+        return render_template( "admin/attendance.html",
+            title='Attendance',
+            task_from = task_from,
+            attendance_form = attendance_form,
+            attendance_records = attendance_records,
+            year=datetime.now().year)
+        
+    return render_template("admin/attendance.html",
+                           title='Attendance',
+                           task_from = task_from,
+                           attendance_form=attendance_form,
+                           attendance_records = attendance_records,
+                           year=datetime.now().year)
+        

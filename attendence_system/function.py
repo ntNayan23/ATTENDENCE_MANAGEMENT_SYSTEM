@@ -1,4 +1,5 @@
 import base64
+from io import BytesIO
 import os
 import pickle
 import secrets
@@ -6,11 +7,14 @@ import shutil
 import string
 import time
 from click import FileError
-from flask import flash
+from flask import flash, request, send_file
 import numpy as np
+import pandas as pd
 from attendence_system import db
 import cv2
 import face_recognition
+from attendence_system import stop_task
+from takeattedance import take_attendance
 
 cam_act = False
 
@@ -244,3 +248,28 @@ def generate_password(length=6):
     password = ''.join(secrets.choice(characters) for i in range(length))
     
     return password
+
+
+
+def background_task():
+    """Function that runs a background task"""
+    while not stop_task.is_set():
+        take_attendance()
+        time.sleep(10)  # Simulate a long-running task
+        print("Background task completed")
+        
+        
+        
+def download_excel(attendance_data):
+    df = pd.DataFrame(attendance_data)
+
+    # Create a BytesIO buffer to save the Excel file
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Attendance')
+
+    # Set the buffer's position to the start
+    output.seek(0)
+
+    # Send the file to the user
+    return send_file(output, download_name='attendance.xlsx', as_attachment=True)

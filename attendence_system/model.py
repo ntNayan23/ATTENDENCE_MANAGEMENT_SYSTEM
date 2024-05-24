@@ -9,16 +9,6 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # Role can be 'hod', 'teacher', or 'student'
 
-    # # Additional fields for Flask-Login
-    # is_authenticated = db.Column(db.Boolean, default=False)
-    # is_active = db.Column(db.Boolean, default=True)
-    # is_anonymous = db.Column(db.Boolean, default=False)
-
-    # # Define relationship with Employee
-    # employee = db.relationship('Employee', backref='user', uselist=False)
-
-    # # Define relationship with Student
-    # student = db.relationship('Student', backref='user', uselist=False)
 
     def __repr__(self):
         return f'{self.username}'
@@ -68,13 +58,12 @@ class Student(db.Model):
     dob = db.Column(db.Date)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone_number = db.Column(db.String(15), unique=True, nullable=False)
-    student_id = db.Column(db.String(20), unique=True)
+    student_id_2 = db.Column(db.String(20), unique=True)
     # Foreign key column to reference BranchName
     branch_id = db.Column(db.Integer, db.ForeignKey('branch_name.id'), nullable=False)
     
     # Define relationship with FaceEncoding
-    face_encodings = db.relationship('FaceEncoding', backref='student', lazy=True)
-    
+    face_encodings = db.relationship('FaceEncoding', backref='student', lazy=True) 
     # Define relationship with Attendance
     attendances = db.relationship('Attendance', backref='student', lazy=True)
     def __repr__(self):
